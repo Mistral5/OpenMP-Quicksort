@@ -1,11 +1,12 @@
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-/// 
+#define cutOffPoint 7000 // size of the array at which it makes sense to create threads
+
+///
 /// writeFile.c
-/// 
+///
 
 char writeFile(FILE* outputFile, int* arr, unsigned int arrSize)
 {
@@ -20,14 +21,13 @@ char writeFile(FILE* outputFile, int* arr, unsigned int arrSize)
 	return 0;
 }
 
-/// 
+///
 /// writeFile.c
-/// 
+///
 
-/// 
+///
 /// readFile.c
-/// 
-/// 
+///
 
 unsigned int arrLengthFinding(FILE* inputFile)
 {
@@ -55,9 +55,7 @@ char readFile(FILE* inputFile, int* arr, unsigned int arrSize)
 
 /// 
 /// quickSort.c
-/// 
-
-#define cutOffPoint 7000
+///
 
 void quickSort(int* arr, int left, int right)
 {
@@ -378,7 +376,6 @@ int main(int argc, char* argv[])
 		else if (implementationType == 1)
 		{
 			omp_set_max_active_levels(numOfThreads);
-			//omp_set_max_active_levels((int)log2f(numOfThreads));
 			actualNumberOfThreads = numOfThreads;
 			
 			if (numOfThreads == 1)
