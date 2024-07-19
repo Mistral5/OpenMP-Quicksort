@@ -59,36 +59,37 @@ char readFile(FILE* inputFile, int* arr, unsigned int arrSize)
 
 void quickSort(int* arr, int left, int right)
 {
-	const int currLeft = left, currRight = right;
-	const int pivot = arr[(left + right) / 2];
+	while (left < right) {
+		const int currLeft = left, currRight = right;
+		const int pivot = arr[(left + right) >> 1];
 
-	while (left <= right)
-	{
-		while (arr[left] < pivot)
-			left++;
-		while (arr[right] > pivot)
-			right--;
-		if (left <= right)
+		while (left <= right)
 		{
-			int buff = arr[left];
-			arr[left] = arr[right];
-			arr[right] = buff;
-			left++;
-			right--;
+			while (arr[left] < pivot)
+				left++;
+			while (arr[right] > pivot)
+				right--;
+			if (left <= right)
+			{
+				int buff = arr[left];
+				arr[left] = arr[right];
+				arr[right] = buff;
+				left++;
+				right--;
+			}
 		}
+
+		if (left < currRight)
+			quickSort(arr, left, currRight);
+
+		left = currLeft;
 	}
-
-	if (left < currRight)
-		quickSort(arr, left, currRight);
-
-	if (currLeft < right)
-		quickSort(arr, currLeft, right);
 }
 
 void quickSortSection(int* arr, int left, int right)
 {
 	const int currLeft = left, currRight = right;
-	const int pivot = arr[(left + right) / 2];
+	const int pivot = arr[(left + right) >> 1];
 
 	while (left <= right)
 	{
@@ -203,86 +204,36 @@ void quickSortSection(int* arr, int left, int right)
 
 void quickSortTask(int* arr, int left, int right)
 {
-	int currLeft = left, currRight = right;
-	int pivot = arr[(left + right) / 2];
+	while (left < right) {
+		const int currLeft = left, currRight = right;
+		const int pivot = arr[(left + right) >> 1];
 
-	while (left <= right)
-	{
-		while (arr[left] < pivot)
-			left++;
-		while (arr[right] > pivot)
-			right--;
-
-		if (left <= right)
+		while (left <= right)
 		{
-			int buff = arr[left];
-			arr[left] = arr[right];
-			arr[right] = buff;
-			left++;
-			right--;
+			while (arr[left] < pivot)
+				left++;
+			while (arr[right] > pivot)
+				right--;
+			if (left <= right)
+			{
+				int buff = arr[left];
+				arr[left] = arr[right];
+				arr[right] = buff;
+				left++;
+				right--;
+			}
 		}
-	}
 
-	unsigned short int rightValue = 0;
-	unsigned short int leftValue = 0;
-
-	if (currLeft < right)
-	{
-		rightValue++;
-		if (right - currLeft > cutOffPoint)
-			rightValue++;
-	}
-
-	if (left < currRight)
-	{
-		leftValue++;
-		if (currRight - left > cutOffPoint)
-			leftValue++;
-	}
-
-	if (rightValue == 2 && leftValue == 2)
-	{
+		if (left < currRight)
+		{
+			if (currRight - left > cutOffPoint)
 #pragma omp task
-		quickSortTask(arr, currLeft, right);
+				quickSortTask(arr, left, currRight);
+			else
+				quickSort(arr, left, currRight);
+		}
 
-		quickSortTask(arr, left, currRight);
-	}
-	else if (rightValue == 1 && leftValue == 2)
-	{
-#pragma omp task
-		quickSortTask(arr, left, currRight);
-
-		quickSort(arr, currLeft, right);
-	}
-	else if (rightValue == 2 && leftValue == 1)
-	{
-#pragma omp task
-		quickSortTask(arr, currLeft, right);
-
-		quickSort(arr, left, currRight);
-	}
-	else if (rightValue == 1 && leftValue == 1)
-	{
-#pragma omp task
-		quickSort(arr, currLeft, right);
-
-		quickSort(arr, left, currRight);
-	}
-	else if (rightValue == 2 && leftValue == 0)
-	{
-		quickSortTask(arr, currLeft, right);
-	}
-	else if (rightValue == 0 && leftValue == 2)
-	{
-		quickSortTask(arr, left, currRight);
-	}
-	else if (rightValue == 1 && leftValue == 0)
-	{
-		quickSort(arr, currLeft, right);
-	}
-	else if (rightValue == 0 && leftValue == 1)
-	{
-		quickSort(arr, left, currRight);
+		left = currLeft;
 	}
 }
 
@@ -377,7 +328,7 @@ int main(int argc, char* argv[])
 		{
 			omp_set_max_active_levels(numOfThreads);
 			actualNumberOfThreads = numOfThreads;
-			
+
 			if (numOfThreads == 1)
 				omp_set_num_threads(1);
 			else
